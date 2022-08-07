@@ -1,0 +1,21 @@
+[package]
+name = "voxel_engine"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+wgpu = "0.13.1"
+winit = "0.26.1"
+
+log = "0.4.17"
+
+pollster = "0.2.5"
+bytemuck = { version = "1.11.0", features = [ "derive" ] }
+png = "0.17.5"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
