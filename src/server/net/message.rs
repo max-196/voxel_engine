@@ -2,14 +2,18 @@
 #[derive(Clone, Copy)]
 pub enum SMsgType { // S for Server
     ConnectionAccept = 0,
+    ChunkData,
 }
 
 use SMsgType::*;
+
+use crate::common::world::{Block, ChPos, InnerChunk};
 
 impl From<u8> for SMsgType {
     fn from(s: u8) -> Self {
         match s {
             0 => ConnectionAccept,
+            1 => ChunkData,
             _ => panic!()
         }
     }
@@ -31,7 +35,11 @@ impl SMsg {
         Self(buf)
     }
 
-    pub fn connection_accept_data(self) -> u8 {
-        self.0[1]
+    pub fn chunk(pos: ChPos, ch: &InnerChunk) -> SMsg {
+        let mut buf = Vec::with_capacity(32768 + 12 + 1);
+        buf.push(ChunkData as u8);
+        buf.extend_from_slice(&ch.as_bytes());
+
+        Self(buf)
     }
 }

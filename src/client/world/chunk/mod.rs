@@ -1,9 +1,7 @@
-use wgpu::util::DeviceExt;
-
 use {
     super::{BVertex, ClientBlock},
     crate::{
-        client::renderer::{bind_group::Layout, BindGroup, Buffer, Uniform},
+        client::renderer::{bind_group::Layout, Buffer, Uniform},
         common::world::{pos::ChPos, *},
     }
 };
@@ -16,20 +14,12 @@ pub struct ClientChunk {
 }
 
 impl ClientChunk {
-    pub fn new(device: &wgpu::Device, layout: &Layout, pos: ChPos) -> Self {
+    pub fn new(inner: InnerChunk, device: &wgpu::Device, _layout: &Layout) -> Self {
+        let pos = inner.pos;
+
         let pos_u = Uniform::new(device, [pos.0.x, pos.0.y, pos.0.z], "Client Position Uniform".to_owned());
 
-        let mut blocks = [Block::Air; CH_VOL];
-        for (ind, b) in blocks.iter_mut().enumerate() {
-            let bp = ChVec::from(ChInd(ind));
-            if bp.0.x == bp.0.z && bp.0.x == bp.0.y {
-                *b = Block::Grass;
-            }
-        }
-
         let vb = Buffer::new_vertex(device, &[], "Chunk Vertex Buffer");
-
-        let inner = InnerChunk::new(pos, blocks);
 
         Self {
             inner,

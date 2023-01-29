@@ -3,6 +3,7 @@ pub mod chunk;
 mod block;
 
 use {
+    std::collections::HashMap,
     block::{BVertex, ClientBlock},
     chunk::ClientChunk,
     block::atlas::Atlas,
@@ -17,15 +18,17 @@ use {
 };
 
 pub struct ClientWorld {
-    world: InnerWorld<ClientChunk>,
+    pub world: InnerWorld<ClientChunk>,
 
     ind_buffer: Buffer,
 
     pub pipeline: Pipeline,
-    ch_layout: Layout,
+    pub ch_layout: Layout,
 
     pub atlas: Atlas,
 }
+
+const RDIST: usize = 8;
 
 impl ClientWorld {
     pub fn new(device: &wgpu::Device, queue: &wgpu::Queue, renderer: &Renderer, player: &Player) -> Result<Self, super::err::ClientInitError> {
@@ -38,17 +41,7 @@ impl ClientWorld {
             "Chunk Layout"
         );
 
-        let mut chunk_list = Vec::with_capacity(8 * 2 * 8);
-
-        for x in -4..4 {
-            for y in -1..1 {
-                for z in -4..4 {
-                    let mut chunk = ClientChunk::new(device, &ch_layout, ChPos::new(Pnt3::new(x, y, z)));
-                    chunk.mesh(device);
-                    chunk_list.push(chunk);
-                }
-            }
-        }
+        let world = InnerWorld::new(usize::pow(RDIST, 3));
 
         let pipeline = Pipeline::new(
             Shader::new(&renderer.device, "Vertex Shader", "assets/shaders/vert.wgsl", "main")?,
@@ -64,9 +57,15 @@ impl ClientWorld {
             BVertex::desc(),
         );
 
-        let world = InnerWorld::new(chunk_list);
-
         Ok(Self { world, ind_buffer, pipeline, ch_layout, atlas })
+    }
+
+    pub fn ch_exists(&self, pos: ChPos) -> bool {
+        if let Some(_) = self.world.chunk_map.get(&pos) {
+            true
+        } else {
+            false
+        }
     }
 }
 
@@ -76,11 +75,11 @@ impl crate::client::renderer::Render for ClientWorld {
         self.atlas.set(0, render_pass);
 
         render_pass.set_index_buffer(self.ind_buffer.0.slice(..), wgpu::IndexFormat::Uint32);
-        for (ctr, _) in self.world.chunk_list.iter().enumerate() {
-            self.world.chunk_list[ctr].pos_u.set(2, render_pass);
+        for (_, chunk) in self.world.chunk_map.iter() {
+            chunk.pos_u.set(2, render_pass);
 
-            render_pass.set_vertex_buffer(0, self.world.chunk_list[ctr].vb.0.slice(..));
-            render_pass.draw_indexed(0..self.world.chunk_list[ctr].ind_count, 0, 0..1);
+            render_pass.set_vertex_buffer(0, chunk.vb.0.slice(..));
+            render_pass.draw_indexed(0..chunk.ind_count, 0, 0..1);
         }
     }
 }

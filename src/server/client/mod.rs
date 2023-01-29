@@ -5,8 +5,8 @@ use std::net::SocketAddr;
 use crate::common::world::WorldPos;
 
 #[derive(Debug)]
-struct Client {
-    address: SocketAddr,
+pub struct Client {
+    pub address: SocketAddr,
     pos: WorldPos,
 }
 

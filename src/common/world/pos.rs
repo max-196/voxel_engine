@@ -59,10 +59,10 @@ impl WorldPos {
         }
     }
 
-    pub fn to_be_bytes(&self) -> Vec<u8> {
+    pub fn as_be_bytes(&self) -> Vec<u8> {
         let mut vec = Vec::with_capacity(24);
-        vec.extend_from_slice(&self.chunk.0.to_be_bytes());
-        vec.extend_from_slice(&self.inside.to_be_bytes());
+        vec.extend_from_slice(&self.chunk.0.as_be_bytes());
+        vec.extend_from_slice(&self.inside.as_be_bytes());
         vec
     }
 
@@ -80,7 +80,7 @@ impl Default for WorldPos {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct ChPos (pub Pnt3<i32>);
 
 impl ChPos {

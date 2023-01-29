@@ -5,7 +5,7 @@ use {
 };
 
 pub struct ClientList {
-    list: HashMap<u8, Client>,
+    pub list: HashMap<u8, Client>,
     cur_id: u8,
 }
 

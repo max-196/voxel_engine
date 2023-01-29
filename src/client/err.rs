@@ -10,8 +10,8 @@ use {
 };
 
 pub enum ClientInitError {
-    RendererInitError(renderer::err::RendererError),
-    NetInitError(net::error::NetInitError),
+    RendererInit(renderer::err::RendererError),
+    NetInit(net::err::NetInitError),
 }
 
 use ClientInitError::*;
@@ -19,8 +19,8 @@ use ClientInitError::*;
 impl Display for ClientInitError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            RendererInitError(e) => write!(f, "Renderer Initialization Error: {}", e),
-            NetInitError(e) => write!(f, "Networking Initialization Error: {}", e),
+            RendererInit(e) => write!(f, "Renderer Initialization Error: {e}"),
+            NetInit(e) => write!(f, "Networking Initialization Error: {e}"),
         }
     }
 }
@@ -35,12 +35,12 @@ impl Error for ClientInitError {}
 
 impl From<renderer::err::RendererError> for ClientInitError {
     fn from(error: renderer::err::RendererError) -> Self {
-        RendererInitError(error)
+        RendererInit(error)
     }
 }
 
-impl From<net::error::NetInitError> for ClientInitError {
-    fn from(error: net::error::NetInitError) -> Self {
-        NetInitError(error)
+impl From<net::err::NetInitError> for ClientInitError {
+    fn from(error: net::err::NetInitError) -> Self {
+        NetInit(error)
     }
 }

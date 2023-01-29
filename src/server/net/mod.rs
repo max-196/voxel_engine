@@ -2,7 +2,7 @@ pub mod message;
 
 use {
     std::net::{UdpSocket, SocketAddr},
-    super::err::ServerInitError::{self, SocketError},
+    super::err::ServerInitError,
     crate::{
         common::networking::*,
         client::net::CMsg
@@ -28,14 +28,14 @@ impl Net {
 
         let socket = match UdpSocket::bind(&addresses[..]) {
             Ok(v) => v,
-            Err(e) => return Err(SocketError(e))
+            Err(e) => return Err(ServerInitError::Socket(e))
         };
 
-        if let Err(e) = socket.set_nonblocking(true) {return Err(SocketError(e))}
+        if let Err(e) = socket.set_nonblocking(true) {return Err(ServerInitError::Socket(e))}
 
         let address = match socket.local_addr() {
             Ok(v) => v,
-            Err(e) => return Err(SocketError(e)),
+            Err(e) => return Err(ServerInitError::Socket(e)),
         };
 
         log::info!("Server networking initialized successfully at port: {}", address);

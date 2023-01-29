@@ -1,7 +1,7 @@
 use std::{error::Error, fmt::{self, Debug, Display}};
 
 pub enum ServerInitError {
-    SocketError(std::io::Error)
+    Socket(std::io::Error)
 }
 
 use ServerInitError::*;
@@ -9,7 +9,7 @@ use ServerInitError::*;
 impl Display for ServerInitError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            SocketError(e) => write!(f, "Error initializing server: Error initializing socket: {}", e),
+            Socket(e) => write!(f, "Error initializing server: Error initializing socket: {e}"),
         }
     }
 }

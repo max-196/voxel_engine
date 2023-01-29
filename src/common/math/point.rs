@@ -1,4 +1,4 @@
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Pnt3<T> {
     pub x: T,
     pub y: T,
@@ -12,7 +12,7 @@ impl <T> Pnt3<T> {
 }
 
 impl Pnt3<f32> {
-    pub fn to_be_bytes(&self) -> Vec<u8> {
+    pub fn as_be_bytes(&self) -> Vec<u8> {
         let mut vec = Vec::with_capacity(12);
         for i in [self.x, self.y, self.z] {
             for byte in i.to_be_bytes() {
@@ -30,7 +30,7 @@ impl Pnt3<f32> {
 }
 
 impl Pnt3<i32> {
-    pub fn to_be_bytes(&self) -> Vec<u8> {
+    pub fn as_be_bytes(&self) -> Vec<u8> {
         let mut vec = Vec::with_capacity(12);
         for i in [self.x, self.y, self.z] {
             for byte in i.to_be_bytes() {

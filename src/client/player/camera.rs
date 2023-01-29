@@ -35,8 +35,6 @@ impl Camera {
             uniform,
             "Camera".to_string(),
         );
-        println!("{}", fovy.rad());
-
         Self {
             aspect: width as f32 / height as f32,
             fovy,
@@ -52,11 +50,11 @@ impl Camera {
         match delta {
             MouseScrollDelta::LineDelta(_, y) => {
                 self.fovy += Angle::from_deg(y * LINE_MULTIPLIER);
-                println!("Changed FOV to {}", self.fovy.deg());
+                log::info!("Changed FOV to {}", self.fovy.deg());
             }
             MouseScrollDelta::PixelDelta(PhysicalPosition { y, ..}) => {
                 self.fovy += Angle::from_deg((y / PIXEL_MULTIPLIER) as f32);
-                println!("Received pixel delta (scroll) {}", y);
+                println!("Received pixel delta (scroll) {y}");
             }
         }
     }

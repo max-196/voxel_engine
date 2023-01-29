@@ -39,7 +39,7 @@ impl Renderer {
     }
 
     fn get_surface(instance: &wgpu::Instance, window: &winit::window::Window) -> Result<wgpu::Surface, RendererError> {
-        unsafe { instance.create_surface(window).map_err(RendererError::SurfaceCreationError) }
+        unsafe { instance.create_surface(window).map_err(RendererError::SurfaceCreation) }
     }
 
     async fn get_adapter(instance: &wgpu::Instance, surface: &wgpu::Surface) -> Result<wgpu::Adapter, RendererError> {
@@ -60,7 +60,7 @@ impl Renderer {
                 label: None,
             },
             None, // Trace path
-        ).await.map_err(RendererError::RequestDeviceError)
+        ).await.map_err(RendererError::RequestDevice)
     }
 
     fn get_config(adapter: &wgpu::Adapter, surface: &wgpu::Surface, size: PhysicalSize<u32>) -> wgpu::SurfaceConfiguration {

@@ -15,7 +15,7 @@ use {
 
 pub fn run() {
     unsafe { if let Err(e) = common::logger::Logger::init(log::LevelFilter::Warn) {
-        println!("Logger has already been set (source code error): '{}'", e);
+        println!("Logger has already been set (source code error): '{e}'");
         return
     }};
 
@@ -77,21 +77,21 @@ fn create_window() -> Result<(EventLoop<()>, Window), String> {
     let icon_path = "assets/sprites/icon.png";
     let (icon_data, icon_info) = match common::files::read_texture(Path::new(icon_path)) {
         Ok(v) => v,
-        Err(e) => return Err(format!("Couldn't create icon texture: {}", e))
+        Err(e) => return Err(format!("Couldn't create icon texture: {e}"))
     };
     let icon = match winit::window::Icon::from_rgba(icon_data, icon_info.width, icon_info.height) {
         Ok(v) => v,
-        Err(e) => return Err(format!("Bad Icon: {} (likely a source code error)", e))
+        Err(e) => return Err(format!("Bad Icon: {e} (likely a source code error)"))
     };
 
     let event_loop = EventLoop::new();
     let window = match WindowBuilder::new()
-        .with_title("hello :)")
+        .with_title("Voxel Engine test")
         .with_window_icon(Some(icon))
         .build(&event_loop)
     {
         Ok(v) => v,
-        Err(e) => return Err(format!("Couldn't build a window: {}", e)),
+        Err(e) => return Err(format!("Couldn't build a window: {e}")),
     };
 
     Ok((event_loop, window))

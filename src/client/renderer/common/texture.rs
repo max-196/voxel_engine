@@ -8,9 +8,9 @@ use {
 
 pub struct Texture {
     pub bind_group: BindGroup,
-    texture: wgpu::Texture,
-    sampler: wgpu::Sampler,
-    view: wgpu::TextureView,
+    _texture: wgpu::Texture,
+    _sampler: wgpu::Sampler,
+    _view: wgpu::TextureView,
 }
 
 impl Texture {
@@ -20,7 +20,7 @@ impl Texture {
 
         let (img_data, info) = match crate::common::files::read_texture(Path::new(path)) {
             Ok(v) => v,
-            Err(e) => return Err(RendererError::TextureCreationError(e)),
+            Err(e) => return Err(RendererError::TextureCreation(e)),
         };
 
         let dimensions = (info.width, info.height);
@@ -104,6 +104,6 @@ impl Texture {
             label,
         );
 
-        Ok(Self { bind_group, texture, sampler, view })
+        Ok(Self { bind_group, _texture: texture, _sampler: sampler, _view: view })
     }
 }

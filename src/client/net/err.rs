@@ -1,7 +1,7 @@
 use std::{error::Error, fmt::{self, Debug, Display}};
 
 pub enum NetInitError {
-    SocketError(std::io::Error)
+    Socket(std::io::Error)
 }
 
 use NetInitError::*;
@@ -9,7 +9,7 @@ use NetInitError::*;
 impl Display for NetInitError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            SocketError(e) => write!(f, "Error initializing socket: {}", e),
+            Socket(e) => write!(f, "Error initializing socket: {e}"),
         }
     }
 }

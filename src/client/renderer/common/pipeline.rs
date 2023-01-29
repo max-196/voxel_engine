@@ -3,7 +3,7 @@ use wgpu::RenderPass;
 use super::{shader::Shader, super::depth_texture::{self, DepthValue}};
 
 pub struct Pipeline {
-    layout: wgpu::PipelineLayout,
+    _layout: wgpu::PipelineLayout,
     pub pipeline: wgpu::RenderPipeline,
 }
 
@@ -67,7 +67,7 @@ impl Pipeline {
             multiview: None,
         });
 
-        Self { layout, pipeline }
+        Self { _layout: layout, pipeline }
     }
 
     pub fn set<'a>(&'a self, render_pass: &mut RenderPass<'a>) {

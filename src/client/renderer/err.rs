@@ -4,11 +4,11 @@ use {
 };
 
 pub enum RendererError {
-    ShaderCreationError(FileError),
-    TextureCreationError(FileError),
-    SurfaceCreationError(wgpu::CreateSurfaceError),
+    ShaderCreation(FileError),
+    TextureCreation(FileError),
+    SurfaceCreation(wgpu::CreateSurfaceError),
     AdapterNotFound,
-    RequestDeviceError(wgpu::RequestDeviceError),
+    RequestDevice(wgpu::RequestDeviceError),
 }
 
 use RendererError::*;
@@ -16,11 +16,11 @@ use RendererError::*;
 impl Display for RendererError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ShaderCreationError(e) => write!(f, "Error creating shader: {}", e),
-            TextureCreationError(e) => write!(f, "Texture error: {}", e),
-            SurfaceCreationError(e) => write!(f, "Error creating surface: {}", e),
+            ShaderCreation(e) => write!(f, "Error creating shader: {e}"),
+            TextureCreation(e) => write!(f, "Texture error: {e}"),
+            SurfaceCreation(e) => write!(f, "Error creating surface: {e}"),
             AdapterNotFound => write!(f, "Adapter couldn't be found"),
-            RequestDeviceError(e) => write!(f, "Error requesting device: {}", e),
+            RequestDevice(e) => write!(f, "Error requesting device: {e}"),
         }
     }
 }

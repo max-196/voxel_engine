@@ -20,7 +20,7 @@ impl Shader{
             label: label.into(),
             source: wgpu::ShaderSource::Wgsl(match read_file(Path::new(path)) {
                 Ok((shader, length)) => {log::info!("Created shader module '{}' with length {}, with entry point '{}', at path {}", label, length, entry, path); shader.into()},
-                Err(e) => return Err(err::RendererError::ShaderCreationError(e)),
+                Err(e) => return Err(err::RendererError::ShaderCreation(e)),
             }),
         });
 

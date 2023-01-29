@@ -30,7 +30,7 @@ impl BindGroup {
         }
     }
 
-    pub fn from_layout(
+    pub fn _from_layout(
         device: &wgpu::Device,
         layout: &wgpu::BindGroupLayout,
         group_entries: &[wgpu::BindGroupEntry],

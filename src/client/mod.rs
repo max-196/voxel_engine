@@ -5,7 +5,6 @@ pub mod world;
 mod renderer;
 mod player;
 mod window;
-mod time;
 
 mod common;
 
@@ -14,6 +13,7 @@ use {
     crate::common::{
         world::pos::{WorldPos, ChPos},
         math::{Pnt3, Angle},
+        {Tick, TimeCmpt, FStats},
     },
     winit::{
         event::{DeviceEvent, KeyboardInput, WindowEvent},
@@ -28,8 +28,9 @@ pub struct Client {
     networking: Net,
     world: ClientWorld,
     window: WindowCmpt,
-    time: TimeCmpt,
+    pub time: TimeCmpt,
     net_tick: Tick,
+    s5_tick: Tick,
 }
 
 impl Client {
@@ -43,9 +44,11 @@ impl Client {
 
         let window = WindowCmpt::new(window);
 
-        let time = TimeCmpt::new();
+        let time = TimeCmpt::new(Some(FStats::new(2500, 1.)));
 
         let net_tick = Tick::new(0.05);
+
+        let s5_tick = Tick::new(2.);
 
         Ok(Self {
             renderer,
@@ -55,6 +58,7 @@ impl Client {
             window,
             time,
             net_tick,
+            s5_tick,
         })
     }
 
@@ -93,6 +97,21 @@ impl Client {
         self.handle_server_messages();
 
         if self.net_tick.update(self.time.dt) {self.net_update()}
+
+        if self.s5_tick.update(self.time.dt) {
+            let mut vec = Vec::new();
+            for x in -1..=1 {
+                for y in -1..=1 {
+                    for z in -1..=1 {
+                        let req_pos = ChPos::new(Pnt3::new(self.player.pos.chunk.0.x + x, self.player.pos.chunk.0.y + y, self.player.pos.chunk.0.z + z));
+                        if !self.world.ch_exists(req_pos) {
+                            vec.push(req_pos);
+                        }
+                    }
+                }
+            }
+            self.networking.send(net::CMsg::chunk_request(&vec, self.networking.id));
+        }
 
         match self.render() {
             Ok(_) => {}

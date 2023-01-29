@@ -3,6 +3,5 @@ pub use super::{
     renderer::Renderer,
     net::Net,
     world::ClientWorld,
-    time::{TimeCmpt, Tick},
     window::WindowCmpt,
 };

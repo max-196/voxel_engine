@@ -89,8 +89,6 @@ impl Player {
         self.pos.add_z(self.velocity.z * time.dt);
 
         self.camera.update(self.pos, self.yaw, self.pitch, queue);
-
-        time.every(500, || println!("{} {} {}", self.pos.inside.x, self.pos.inside.y, self.pos.inside.z));
     }
 
     pub fn resize(&mut self, size: winit::dpi::PhysicalSize<u32>) {

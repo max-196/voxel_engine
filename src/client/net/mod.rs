@@ -1,4 +1,4 @@
-pub mod error;
+pub mod err;
 pub mod message;
 pub mod msg_handling;
 
@@ -8,7 +8,7 @@ use {
         common::networking::*,
         server::net::message::SMsg,
     },
-    error::NetInitError::{self, SocketError},
+    err::NetInitError,
 };
 
 mod common;
@@ -31,11 +31,11 @@ impl Net {
 
         let socket = match UdpSocket::bind(&addresses[..]) {
             Ok(v) => v,
-            Err(e) => return Err(error::NetInitError::SocketError(e)),
+            Err(e) => return Err(NetInitError::Socket(e)),
         };
-        if let Err(e) = socket.set_nonblocking(true) {return Err(SocketError(e))}
+        if let Err(e) = socket.set_nonblocking(true) {return Err(NetInitError::Socket(e))}
 
-        if let Err(e) =  socket.connect(server_address) {return Err(SocketError(e))}
+        if let Err(e) =  socket.connect(server_address) {return Err(NetInitError::Socket(e))}
 
         let buffer = buffer();
 

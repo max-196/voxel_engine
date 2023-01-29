@@ -1,7 +1,5 @@
 pub mod point;
 pub mod vec;
-pub mod rad;
-pub mod deg;
 pub mod mat;
 pub mod angle;
 

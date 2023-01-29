@@ -22,7 +22,7 @@ const WIDTH: f32 = 8.;
 const HEIGHT: f32 = 8.;
 
 const UWIDTH: usize = 8;
-const UHEIGHT: usize = 8;
+const _UHEIGHT: usize = 8;
 
 pub struct AtlasCoords {
     pub left: f32,

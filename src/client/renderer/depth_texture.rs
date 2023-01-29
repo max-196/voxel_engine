@@ -1,6 +1,6 @@
 pub struct DepthTexture {
-    texture: wgpu::Texture,
-    sampler: wgpu::Sampler,
+    _texture: wgpu::Texture,
+    _sampler: wgpu::Sampler,
     pub view: wgpu::TextureView,
 }
 
@@ -42,7 +42,7 @@ impl DepthTexture {
             ..Default::default()
         });
 
-        Self { texture, sampler, view }
+        Self { _texture: texture, _sampler: sampler, view }
     }
 }
 

@@ -1,10 +1,11 @@
-use crate::common::world::WorldPos;
+use crate::common::world::{WorldPos, ChPos};
 
 #[repr(u8)]
 #[derive(Clone, Copy)]
 pub enum CMsgType { // C for Client
     ConnectionRequest = 0,
     Position,
+    ChunkRequest,
 }
 
 use CMsgType::*;
@@ -14,6 +15,7 @@ impl From<u8> for CMsgType {
         match s {
             0 => ConnectionRequest,
             1 => Position,
+            2 => ChunkRequest,
             _ => panic!()
         }
     }
@@ -39,7 +41,17 @@ impl CMsg {
         let mut buf = Vec::with_capacity(26);
         buf.push(Position as u8);
         buf.push(id);
-        buf.extend_from_slice(&pos.to_be_bytes());
+        buf.extend_from_slice(&pos.as_be_bytes());
+        Self(buf)
+    }
+
+    pub fn chunk_request(pos: &[ChPos], id: u8) -> Self {
+        let mut buf = Vec::with_capacity(2 + (12 * pos.len()));
+        buf.push(ChunkRequest as u8);
+        buf.push(id);
+        for p in pos {
+            buf.extend_from_slice(&p.0.as_be_bytes());
+        }
         Self(buf)
     }
 }

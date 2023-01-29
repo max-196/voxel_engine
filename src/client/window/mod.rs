@@ -1,5 +1,5 @@
 use {
-    super::time::TimeCmpt,
+    crate::common::TimeCmpt,
     winit::{
         event::*,
         event_loop::ControlFlow,
@@ -23,7 +23,12 @@ impl WindowCmpt {
     }
 
     pub fn update(&mut self, time: &TimeCmpt) {
-        time.every(100, || self.window.set_title(&(1. / time.dt).to_string()));
+        let dt = if let Some(stats) = &time.stats {
+            format!("{} frames: {:.2} FPS; {:.2}s: {:.2} FPS", stats.max_frames, 1. / stats.f_avg_dt(), stats.max_time, 1. / stats.t_avg_dt())
+        } else {
+            format!("{:.2} FPS", 1./time.dt)
+        };
+        time.every(100, || self.window.set_title(&dt));
     }
 
     pub fn input(&mut self, event: &DeviceEvent, control_flow: &mut ControlFlow) {
