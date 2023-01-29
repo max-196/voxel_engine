@@ -3,7 +3,7 @@ use {
     winit::{
         event::*,
         event_loop::ControlFlow,
-        window::{Window, WindowId},
+        window::{Window, WindowId, CursorGrabMode},
     }
 };
 
@@ -23,9 +23,7 @@ impl WindowCmpt {
     }
 
     pub fn update(&mut self, time: &TimeCmpt) {
-        if time.every(100) {
-            self.window.set_title(&(1. / time.dt).to_string())
-        }
+        time.every(100, || self.window.set_title(&(1. / time.dt).to_string()));
     }
 
     pub fn input(&mut self, event: &DeviceEvent, control_flow: &mut ControlFlow) {
@@ -33,7 +31,15 @@ impl WindowCmpt {
             self.exit(control_flow);
         } else if let DeviceEvent::Key(KeyboardInput { virtual_keycode: Some(VirtualKeyCode::F1), state: ElementState::Pressed, ..}) = event {
             self.cursor_visible = !self.cursor_visible;
-            if let Err(e) = self.window.set_cursor_grab(!self.cursor_visible) {log::error!("{}", e)}
+
+            const UNGRAB_MODE: CursorGrabMode = CursorGrabMode::None;
+            const GRAB_MODE: CursorGrabMode = CursorGrabMode::Confined;
+            if let Err(e) = self.window.set_cursor_grab(
+                match self.cursor_visible {
+                    true => UNGRAB_MODE,
+                    false => GRAB_MODE,
+                }) {log::error!("{}", e)}
+
             self.window.set_cursor_visible(self.cursor_visible);
         }
     }

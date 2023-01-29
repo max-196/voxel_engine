@@ -10,7 +10,7 @@ impl Renderer {
 
         let instance = Self::get_instance();
 
-        let surface = Self::get_surface(&instance, window);
+        let surface = Self::get_surface(&instance, window)?;
 
         let adapter = block_on(Self::get_adapter(&instance, &surface))?;
 
@@ -32,11 +32,14 @@ impl Renderer {
     }
 
     fn get_instance() -> wgpu::Instance {
-        wgpu::Instance::new(wgpu::Backends::all())
+        wgpu::Instance::new(wgpu::InstanceDescriptor {
+            backends: wgpu::Backends::all(),
+            dx12_shader_compiler: wgpu::Dx12Compiler::Fxc,
+        })
     }
 
-    fn get_surface(instance: &wgpu::Instance, window: &winit::window::Window) -> wgpu::Surface {
-        unsafe { instance.create_surface(window) }
+    fn get_surface(instance: &wgpu::Instance, window: &winit::window::Window) -> Result<wgpu::Surface, RendererError> {
+        unsafe { instance.create_surface(window).map_err(RendererError::SurfaceCreationError) }
     }
 
     async fn get_adapter(instance: &wgpu::Instance, surface: &wgpu::Surface) -> Result<wgpu::Adapter, RendererError> {
@@ -63,10 +66,12 @@ impl Renderer {
     fn get_config(adapter: &wgpu::Adapter, surface: &wgpu::Surface, size: PhysicalSize<u32>) -> wgpu::SurfaceConfiguration {
         wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-            format: surface.get_supported_formats(adapter)[0],
+            format: surface.get_capabilities(adapter).formats[0],
             width: size.width,
             height: size.height,
             present_mode: wgpu::PresentMode::AutoNoVsync,
+            alpha_mode: wgpu::CompositeAlphaMode::Auto,
+            view_formats: vec![surface.get_capabilities(adapter).formats[0]],
         }
     }
 }

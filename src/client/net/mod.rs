@@ -16,7 +16,7 @@ pub use common::*;
 
 pub struct Net {
     socket: UdpSocket,
-    id: u8,
+    pub id: u8,
     buffer: Buffer,
 }
 

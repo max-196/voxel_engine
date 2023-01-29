@@ -6,6 +6,7 @@ use {
 pub enum RendererError {
     ShaderCreationError(FileError),
     TextureCreationError(FileError),
+    SurfaceCreationError(wgpu::CreateSurfaceError),
     AdapterNotFound,
     RequestDeviceError(wgpu::RequestDeviceError),
 }
@@ -17,6 +18,7 @@ impl Display for RendererError {
         match self {
             ShaderCreationError(e) => write!(f, "Error creating shader: {}", e),
             TextureCreationError(e) => write!(f, "Texture error: {}", e),
+            SurfaceCreationError(e) => write!(f, "Error creating surface: {}", e),
             AdapterNotFound => write!(f, "Adapter couldn't be found"),
             RequestDeviceError(e) => write!(f, "Error requesting device: {}", e),
         }

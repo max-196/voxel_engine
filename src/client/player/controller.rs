@@ -1,4 +1,5 @@
 use winit::event::{VirtualKeyCode, ElementState};
+use crate::common::math::Angle;
 
 pub struct Controller {
     speed: f32,
@@ -11,8 +12,8 @@ pub struct Controller {
     up: bool,
     down: bool,
 
-    pub hrot: f32,
-    pub vrot: f32,
+    pub hrot: Angle,
+    pub vrot: Angle,
 }
 
 impl Controller {
@@ -28,8 +29,8 @@ impl Controller {
             up:       false,
             down:     false,
 
-            hrot: 0.0,
-            vrot: 0.0,
+            hrot: Angle::from_rad(0.),
+            vrot: Angle::from_rad(0.),
         }
     }
 
@@ -68,7 +69,7 @@ impl Controller {
     }
 
     pub fn mouse_movement(&mut self, dx: f64, dy: f64) {
-        self.hrot = dx as f32 * self.sens;
-        self.vrot = dy as f32 * self.sens;
+        self.hrot = Angle::from_rad(dx as f32 * self.sens);
+        self.vrot = Angle::from_rad(dy as f32 * self.sens);
     }
 }

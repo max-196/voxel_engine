@@ -6,7 +6,7 @@ use {
     controller::Controller,
     super::TimeCmpt,
     crate::common::{
-        math::{Rad, Vec3},
+        math::{Angle, Vec3},
         world::pos::WorldPos,
     },
     winit::event::{VirtualKeyCode, ElementState, MouseScrollDelta}
@@ -16,25 +16,26 @@ const SMALL_FRAC_PI_2: f32 = std::f32::consts::FRAC_PI_2 - f32::EPSILON; // Subt
 
 pub struct Player {
     pub pos: WorldPos,
-    yaw: Rad,
-    pitch: Rad,
+    yaw: Angle,
+    pitch: Angle,
     pub camera: Camera,
     controller: Controller,
     velocity: Vec3<f32>,
-    hrot: Rad,
-    vrot: Rad,
+    hrot: Angle,
+    vrot: Angle,
+    pub moved: bool,
 }
 
 impl Player {
     pub fn new(
         pos: WorldPos,
-        yaw: Rad,
-        pitch: Rad,
+        yaw: Angle,
+        pitch: Angle,
         width: u32,
         height: u32,
         device: &wgpu::Device,
     ) -> Self {
-        let camera = Camera::new(width, height, 45_f32.to_radians(), 0.1, 500., device);
+        let camera = Camera::new(width, height, Angle::from_deg(45.), 0.1, 500., device);
         let controller = Controller::new(1., 1.);
 
         Self {
@@ -44,8 +45,9 @@ impl Player {
             camera,
             controller,
             velocity: Vec3::zero(),
-            hrot: 0.,
-            vrot: 0.,
+            hrot: Angle::from_rad(0.),
+            vrot: Angle::from_rad(0.),
+            moved: false,
         }
     }
 
@@ -65,17 +67,22 @@ impl Player {
 
     pub fn update(&mut self, queue: &wgpu::Queue, time: &TimeCmpt) {
         let movement = self.controller.get_movement();
+        if movement != [0., 0., 0.] {
+            self.moved = true;
+        }
 
-        let fw = Vec3::new(self.pitch.cos() * self.yaw.cos(), self.pitch.sin(), self.pitch.cos() * self.yaw.sin()).norm();
-        let right = Vec3::new(-self.yaw.sin(), 0.0, self.yaw.cos()).norm();
+        let (psin, pcos) = self.pitch.sin_cos();
+        let (ysin, ycos) = self.yaw.sin_cos();
+        let fw = Vec3::new(pcos * ycos, psin, pcos * ysin).norm();
+        let right = Vec3::new(-ysin, 0.0, ycos).norm();
         self.velocity = (fw * movement[2]) + (right * movement[0]) + (Vec3::unit_y() * movement[1]);
 
         self.yaw += self.hrot * time.dt;
         self.pitch -= self.vrot * time.dt;
-        if self.pitch >= SMALL_FRAC_PI_2 {self.pitch = SMALL_FRAC_PI_2}
-        else if self.pitch <= -SMALL_FRAC_PI_2 {self.pitch = -SMALL_FRAC_PI_2}
-        self.hrot = 0.;
-        self.vrot = 0.;
+        if self.pitch.rad() >= SMALL_FRAC_PI_2 {self.pitch = Angle::from_rad(SMALL_FRAC_PI_2)}
+        else if self.pitch.rad() <= -SMALL_FRAC_PI_2 {self.pitch = Angle::from_rad(-SMALL_FRAC_PI_2)}
+        self.hrot = Angle::from_rad(0.);
+        self.vrot = Angle::from_rad(0.);
 
         self.pos.add_x(self.velocity.x * time.dt);
         self.pos.add_y(self.velocity.y * time.dt);
@@ -83,9 +90,7 @@ impl Player {
 
         self.camera.update(self.pos, self.yaw, self.pitch, queue);
 
-        if time.every(500) {
-            println!("{} {} {}", self.pos.inside.x, self.pos.inside.y, self.pos.inside.z);
-        }
+        time.every(500, || println!("{} {} {}", self.pos.inside.x, self.pos.inside.y, self.pos.inside.z));
     }
 
     pub fn resize(&mut self, size: winit::dpi::PhysicalSize<u32>) {

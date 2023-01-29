@@ -13,7 +13,7 @@ use {
     common::*,
     crate::common::{
         world::pos::{WorldPos, ChPos},
-        math::Pnt3,
+        math::{Pnt3, Angle},
     },
     winit::{
         event::{DeviceEvent, KeyboardInput, WindowEvent},
@@ -29,12 +29,13 @@ pub struct Client {
     world: ClientWorld,
     window: WindowCmpt,
     time: TimeCmpt,
+    net_tick: Tick,
 }
 
 impl Client {
     pub fn new(window: winit::window::Window, server_address: std::net::SocketAddr) -> Result<Self, self::err::ClientInitError> {
         let renderer = Renderer::new(&window)?;
-        let player = Player::new(WorldPos::new(ChPos::new(Pnt3::new(-1, 0, 0)), Pnt3::new(31., 0., 0.)), 0., 0., renderer.config.width, renderer.config.height, &renderer.device);
+        let player = Player::new(WorldPos::new(ChPos::new(Pnt3::new(-1, 0, 0)), Pnt3::new(31., 0., 0.)), Angle::from_rad(0.), Angle::from_rad(0.), renderer.config.width, renderer.config.height, &renderer.device);
 
         let world = ClientWorld::new(&renderer.device, &renderer.queue, &renderer, &player)?;
 
@@ -44,6 +45,8 @@ impl Client {
 
         let time = TimeCmpt::new();
 
+        let net_tick = Tick::new(0.05);
+
         Ok(Self {
             renderer,
             player,
@@ -51,6 +54,7 @@ impl Client {
             world,
             window,
             time,
+            net_tick,
         })
     }
 
@@ -88,11 +92,20 @@ impl Client {
         self.player.update(&self.renderer.queue, &self.time);
         self.handle_server_messages();
 
+        if self.net_tick.update(self.time.dt) {self.net_update()}
+
         match self.render() {
             Ok(_) => {}
             Err(wgpu::SurfaceError::Lost) => self.resize(self.renderer.size),
             Err(wgpu::SurfaceError::OutOfMemory) => self.window.exit(control_flow),
             Err(e) => log::error!("{}", e),
+        }
+    }
+
+    fn net_update(&mut self) {
+        if self.player.moved {
+            self.networking.send(net::CMsg::position(&self.player.pos, self.networking.id));
+            self.player.moved = false;
         }
     }
 

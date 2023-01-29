@@ -14,6 +14,8 @@ pub struct Texture {
 }
 
 impl Texture {
+    pub const TEXTURE_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Rgba8Unorm;
+
     pub fn new(device: &wgpu::Device, queue: &wgpu::Queue, label: String, path: &'static str) -> Result<Self, RendererError> {
 
         let (img_data, info) = match crate::common::files::read_texture(Path::new(path)) {
@@ -28,15 +30,17 @@ impl Texture {
             height: dimensions.1,
             depth_or_array_layers: 1,
         };
+
         let texture = device.create_texture(
             &wgpu::TextureDescriptor {
                 size: texture_size,
                 mip_level_count: 1,
                 sample_count: 1,
                 dimension: wgpu::TextureDimension::D2,
-                format: wgpu::TextureFormat::Rgba8UnormSrgb,
+                format: Self::TEXTURE_FORMAT,
                 usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
                 label: Some("texture"),
+                view_formats: &[Self::TEXTURE_FORMAT],
             }
         );
 

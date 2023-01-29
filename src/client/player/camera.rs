@@ -3,7 +3,7 @@ use {
         client::renderer::uniform::Uniform,
         common::{
             world::pos::WorldPos,
-            math::{Mat4, Vec3, Rad}
+            math::{Mat4, Vec3, Angle}
         }
     },
     winit::{
@@ -14,7 +14,7 @@ use {
 
 pub struct Camera {
     aspect: f32,
-    fovy: Rad,
+    fovy: Angle,
     znear: f32,
     zfar: f32,
     uniform: Uniform<CamUniform>,
@@ -24,7 +24,7 @@ impl Camera {
     pub fn new(
         width: u32,
         height: u32,
-        fovy: Rad,
+        fovy: Angle,
         znear: f32,
         zfar: f32,
         device: &wgpu::Device,
@@ -35,7 +35,7 @@ impl Camera {
             uniform,
             "Camera".to_string(),
         );
-        println!("{}", fovy);
+        println!("{}", fovy.rad());
 
         Self {
             aspect: width as f32 / height as f32,
@@ -51,11 +51,11 @@ impl Camera {
         const PIXEL_MULTIPLIER: f64 = 1./30.;
         match delta {
             MouseScrollDelta::LineDelta(_, y) => {
-                self.fovy += (y * LINE_MULTIPLIER).to_radians();
-                println!("Changed FOV to {}", self.fovy.to_degrees());
+                self.fovy += Angle::from_deg(y * LINE_MULTIPLIER);
+                println!("Changed FOV to {}", self.fovy.deg());
             }
             MouseScrollDelta::PixelDelta(PhysicalPosition { y, ..}) => {
-                self.fovy += (y / PIXEL_MULTIPLIER).to_radians() as f32;
+                self.fovy += Angle::from_deg((y / PIXEL_MULTIPLIER) as f32);
                 println!("Received pixel delta (scroll) {}", y);
             }
         }
@@ -65,10 +65,13 @@ impl Camera {
         self.aspect = width as f32 / height as f32;
     }
 
-    pub fn update(&mut self, pos: WorldPos, yaw: Rad, pitch: Rad, queue: &wgpu::Queue) {
+    pub fn update(&mut self, pos: WorldPos, yaw: Angle, pitch: Angle, queue: &wgpu::Queue) {
+        let (psin, pcos) = pitch.sin_cos();
+        let (ysin, ycos) = yaw.sin_cos();
+
         let cam_m = Mat4::look_to_rh(
             pos.inside,
-            Vec3::new(pitch.cos() * yaw.cos(), pitch.sin(), pitch.cos() * yaw.sin()),
+            Vec3::new(pcos * ycos, psin, pcos * ysin),
             Vec3::unit_y(),
         );
 

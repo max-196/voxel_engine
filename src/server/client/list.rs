@@ -1,6 +1,7 @@
 use {
     std::{collections::HashMap, net::SocketAddr},
-    super::Client
+    super::Client,
+    crate::common::world::WorldPos,
 };
 
 pub struct ClientList {
@@ -21,5 +22,11 @@ impl ClientList {
         self.list.insert(id, Client::new(address));
         self.cur_id += 1;
         id
+    }
+
+    pub fn set_client_position(&mut self, id: u8, pos: WorldPos) {
+        if let Some(client) = self.list.get_mut(&id) {
+            client.pos = pos;
+        }
     }
 }

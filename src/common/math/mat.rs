@@ -38,8 +38,8 @@ impl Mat4<f32> {
         )
     }
 
-    pub fn perspective(fovy: super::Rad, aspect: f32, near: f32, far: f32) -> Self {
-        let f = 1. / (fovy / 2.).tan();
+    pub fn perspective(fovy: super::Angle, aspect: f32, near: f32, far: f32) -> Self {
+        let f = 1. / (fovy.rad() / 2.).tan();
         Self::new(
             Vec4::new(f / aspect, 0., 0., 0.),
             Vec4::new(0., f, 0., 0.),

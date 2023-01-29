@@ -3,7 +3,7 @@ use {
     crate::common::math::Pnt3,
 };
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct WorldPos {
     pub chunk: ChPos,
     pub inside: Pnt3<f32>,
@@ -58,9 +58,29 @@ impl WorldPos {
             self.chunk.0.z -= 1;
         }
     }
+
+    pub fn to_be_bytes(&self) -> Vec<u8> {
+        let mut vec = Vec::with_capacity(24);
+        vec.extend_from_slice(&self.chunk.0.to_be_bytes());
+        vec.extend_from_slice(&self.inside.to_be_bytes());
+        vec
+    }
+
+    pub fn from_be_bytes(src: &[u8]) -> Self {
+        Self {
+            chunk: ChPos(Pnt3::<i32>::from_be_bytes(&src[0..12])),
+            inside: Pnt3::<f32>::from_be_bytes(&src[12..24]),
+        }
+    }
 }
 
-#[derive(Clone, Copy)]
+impl Default for WorldPos {
+    fn default() -> Self {
+        Self { chunk: ChPos::new(Pnt3::new(0, 0, 0)), inside: Pnt3::new(0., 0., 0.) }
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
 pub struct ChPos (pub Pnt3<i32>);
 
 impl ChPos {
